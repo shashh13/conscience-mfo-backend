@@ -242,7 +242,7 @@ def build_slide2(prs, data):
     add_text_box(slide, 0.3, 0.06, 2.5, 0.38, "CONSCIENCE MFO",
                  font_size=11, bold=True, color=GOLD)
     add_text_box(slide, 2.9, 0.06, 6, 0.38,
-                 data["clientName"].upper() + "  |  PORTFOLIO ANALYSIS",
+                 data["clientName"].upper(),
                  font_size=9, color=WHITE)
     add_text_box(slide, 10, 0.06, 3.1, 0.38,
                  "Total AUM: ${:,}  |  {}".format(int(data["totalInvestment"]), data["reportDate"]),
@@ -274,9 +274,9 @@ def build_slide2(prs, data):
     add_text_box(slide, chart_col_x+0.1, content_top, 3, 0.22,
                  "SECTOR ALLOCATION", font_size=9, bold=True, color=DARK_BLUE)
 
-    # Donut chart
-    donut_h = chart_zone_h * 0.60
-    donut_top = content_top + 0.25
+    # Single large donut chart — full chart zone height
+    donut_h = chart_zone_h - 0.28  # full zone minus title
+    donut_top = content_top + 0.28
     chart_data = ChartData()
     chart_data.categories = [s for s, v in sorted_sectors]
     chart_data.add_series("Allocation", [v for s, v in sorted_sectors])
@@ -296,31 +296,6 @@ def build_slide2(prs, data):
     # Color the donut segments
     for i, (sec, _) in enumerate(sorted_sectors):
         pt = donut.series[0].points[i]
-        pt.format.fill.solid()
-        pt.format.fill.fore_color.rgb = SECTOR_PAL.get(sec, RGBColor(0x88,0x88,0x88))
-
-    # USD Allocated label
-    bar_label_y = donut_top + donut_h + 0.05
-    add_text_box(slide, chart_col_x, bar_label_y, chart_col_w, 0.22,
-                 "USD ALLOCATED", font_size=8, bold=True, color=DARK_BLUE, align=PP_ALIGN.CENTER)
-
-    # Horizontal bar chart
-    bar_h = chart_zone_bottom - bar_label_y - 0.22 - 0.05
-    bar_data = ChartData()
-    bar_data.categories = [s for s, v in sorted_sectors]
-    bar_data.add_series("USD Allocated", [v for s, v in sorted_sectors])
-    bar_chart_shape = slide.shapes.add_chart(
-        XL_CHART_TYPE.BAR_CLUSTERED,
-        Inches(chart_col_x), Inches(bar_label_y + 0.22),
-        Inches(chart_col_w), Inches(bar_h),
-        bar_data
-    )
-    bc = bar_chart_shape.chart
-    bc.has_legend = False
-    bc.series[0].data_labels.show_value = True
-    bc.series[0].data_labels.number_format = '"$"#,##0'
-    for i, (sec, _) in enumerate(sorted_sectors):
-        pt = bc.series[0].points[i]
         pt.format.fill.solid()
         pt.format.fill.fore_color.rgb = SECTOR_PAL.get(sec, RGBColor(0x88,0x88,0x88))
 
